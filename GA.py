@@ -71,7 +71,7 @@ class GA(object):
 
         for i in range(num):  # 每个个体的适应度
 
-            if (function1[i] > 0):  # 如果目标函数值大于0
+            if function1[i] > 0:  # 如果目标函数值大于0
                 temporary = function1[i]  # 将目标函数值赋值给临时变量
             else:
                 temporary = 0.0  # 如果目标函数值小于0，则将适应度赋值为0
@@ -90,7 +90,7 @@ class GA(object):
         return total  # 返回总和
 
     # 计算适应度斐伯纳且列表
-    def cumsum(self, fitness1):  # 适应度累加列表
+    def cumsum(self, fitness1):  # 适应度累加列表，用于累加进行轮盘赌
         for i in range(len(fitness1) - 2, -1, -1):
             # range(start,stop,[step])
             # 倒计数
@@ -128,7 +128,7 @@ class GA(object):
 
         # 轮盘赌方式
         while newin < pop_len:  # 如果新的种群数量小于种群数量
-            if (ms[newin] < new_fitness[fitin]):  # 如果随机数小于适应度值
+            if ms[newin] < new_fitness[fitin]:  # 如果随机数小于适应度值
                 new_pop[newin] = population[fitin]  # 将适应度最大的个体赋值给新的种群
                 newin += 1  # 新的种群数量加1
             else:
@@ -142,7 +142,7 @@ class GA(object):
 
         for i in range(pop_len - 1):
 
-            if (random.random() < self.pc):  # 如果随机数小于pc，则进行交叉操作
+            if random.random() < self.pc:  # 如果随机数小于pc，则进行交叉操作
 
                 cpoint = random.randint(0, len(population[0]))
                 # 在种群个数内随机生成单点交叉点
@@ -224,10 +224,8 @@ class GA(object):
     def main(self):
 
         results = [[]]  # 存放最优个体和最优适应度值
-        fitness_value = []  # 存放每一个个体的适应度值
-        fitmean = []  # 存放每一代的平均适应度值
 
-        population = pop = self.species_origin()  # 初始化种群
+        population = self.species_origin()  # 初始化种群
 
         for i in range(500):  # 迭代500次
             function_value = self.function(population)  # 计算每一个个体的目标函数值

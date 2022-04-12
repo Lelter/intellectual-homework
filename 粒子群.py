@@ -50,7 +50,7 @@ class PSO:
         # y = x1 ** 2 + x2 ** 2 + x3 ** 3 + x4 ** 4  # 公式为y=x1^2+x2^2+x3^3+x4^4
         y = (100 * (x2 - x1 ** 2) ** 2 + (x1 - 1) ** 2 + 100 * (x3 - x2 ** 2) ** 2 + (x2 - 1) ** 2 + 100 * (
                 x4 - x3 ** 2) ** 2 + (
-                     x3 - 1) ** 2)
+                     x3 - 1) ** 2)  # 四维Rosenbrock函数
         return y  # 返回适应值
 
     def update_operator(self, pop_size):
@@ -87,7 +87,7 @@ class PSO:
         for gen in range(self.NGEN):  # 对每一代
             self.update_operator(self.pop_size)  # 更新速度位置，更新最优值
             print('############ Generation {} ############'.format(str(gen + 1)))
-            if self.fitness(self.g_best) < self.fitness(self.ng_best):  # 如果这一代的最优解大于所有代的最好位置
+            if self.fitness(self.g_best) < self.fitness(self.ng_best):  # 如果这一代的最优解小于所有代的最好位置
                 self.ng_best = self.g_best.copy()  # 赋值给ng_best
             every_iter_best_fitness.append(self.fitness(self.ng_best))  # 添加每一代所有个体中的最优解
 

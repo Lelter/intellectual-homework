@@ -3,7 +3,7 @@
   <component name="WebServers">
     <option name="servers">
       <webServer id="9ea1af51-86f5-4150-81fc-4eb19e193ce4" name="romote" url="http://64.112.41.241">
-        <fileTransfer accessType="SFTP" sshConfigId="441c1660-bee9-4cdb-b6bc-9b0f1a2c3c52" sshConfig="romote">
+        <fileTransfer accessType="SFTP" host="64.112.41.241" port="22" sshConfigId="441c1660-bee9-4cdb-b6bc-9b0f1a2c3c52" sshConfig="romote">
           <advancedOptions>
             <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
           </advancedOptions>

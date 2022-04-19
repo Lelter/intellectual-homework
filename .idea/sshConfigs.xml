@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SshConfigs">
+    <configs>
+      <sshConfig authType="PASSWORD" connectionConfig="{&quot;serverAliveInterval&quot;:300}" id="441c1660-bee9-4cdb-b6bc-9b0f1a2c3c52" customName="romote" nameFormat="CUSTOM">
+        <option name="customName" value="romote" />
+      </sshConfig>
+    </configs>
+  </component>
+</project>

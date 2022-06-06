@@ -55,11 +55,11 @@ class GA(object):
         function1 = []  # 目标函数集体
         temporary = self.translation(population)  # 将种群转化为十进制
         for i in range(len(temporary)):  # 每个个体转变为目标函数值
-            x = temporary[i] * self.max_value / \
-                (math.pow(2, self.choromosome_length) - 10)  # 规定x最大值
+            # x = temporary[i] * self.max_value / \
+            #     (math.pow(2, self.choromosome_length) - 10)  # 
+            x=temporary[i]
             function1.append(2 * math.sin(x) + math.cos(x))  # 计算目标函数值
 
-        # 这里将sin(x)作为目标函数
         return function1  # 返回种群中所有个体的目标函数值
 
     # 定义适应度
@@ -89,7 +89,7 @@ class GA(object):
             total += fitness_value[i]  # 将适应度值相加
         return total  # 返回总和
 
-    # 计算适应度斐伯纳且列表
+    # 计算适应度累加值
     def cumsum(self, fitness1):  # 适应度累加列表，用于累加进行轮盘赌
         for i in range(len(fitness1) - 2, -1, -1):
             # range(start,stop,[step])
@@ -106,7 +106,6 @@ class GA(object):
 
     def selection(self, population, fitness_value):  # 选择种群中个体适应度最大的个体
         new_fitness = []  # 新的适应度集体
-        # 单个公式暂存器
         total_fitness = self.sum(fitness_value)  # 计算适应度和
         # 将所有的适应度求和
         for i in range(len(fitness_value)):
@@ -121,18 +120,19 @@ class GA(object):
 
         for i in range(pop_len):
             ms.append(random.random())
+        ms.sort()
         # 产生种群个数的随机值
-        fitin = 0  # 适应度值
-        newin = 0  # 新的适应度值
+        fitin = 0  # 旧的种群个数
+        newin = 0  # 新的种群个数
         new_pop = population  # 新的种群
 
         # 轮盘赌方式
         while newin < pop_len:  # 如果新的种群数量小于种群数量
-            if ms[newin] < new_fitness[fitin]:  # 如果随机数小于适应度值
+            if ms[newin] < new_fitness[fitin]:  # 如果随机数小于fitin个个体的累积概率，选中该个体，表示命中
                 new_pop[newin] = population[fitin]  # 将适应度最大的个体赋值给新的种群
                 newin += 1  # 新的种群数量加1
             else:
-                fitin += 1  # 适应度值加1
+                fitin += 1  # 旧的种群个数，选择下一个
         population = new_pop  # 将新的种群赋值给种群
 
     # 4.交叉操作
@@ -188,7 +188,7 @@ class GA(object):
             # 将每一个染色体都转化成十进制,方法为每一位按2的指数进行相加
             total = total + best_individual[i] * math.pow(2, i)
 
-        total = total * self.max_value / (math.pow(2, self.choromosome_length) - 1)
+        # total = total * self.max_value / (math.pow(2, self.choromosome_length) - 1)
         return total
 
     # 寻找最好的适应度和个体

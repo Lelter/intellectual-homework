@@ -39,7 +39,7 @@ def simulated_annealing():
             elif(random.random() < math.exp((new_y-n)/Temperture)):
                 n = new_y
                 x = new_x
-        fitness_list.append(new_y)
+            fitness_list.append(new_y)
         Temperture *= dT
     return answer
 

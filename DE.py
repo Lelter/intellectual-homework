@@ -90,7 +90,7 @@ class DE:
             mutation = self.get_kth_unit(r1).get_pos(
             ) + self.F * (self.get_kth_unit(r2).get_pos() - self.get_kth_unit(r3).get_pos())  # 计算突变后的向量，F为突变系数
             for j in range(self.dim):
-                if self.x_min <= mutation[j] <= self.x_max:
+                if self.x_min <= mutation[j] <= self.x_max:# 设置自变量的范围
                     self.get_kth_unit(i).set_mutation(j, mutation[j])  # 设置突变后的向量,后面交叉可能用到
                 else:
                     rand_value = self.x_min + random.random() * (self.x_max - self.x_min)  # 如果变量超出范围，随机取值

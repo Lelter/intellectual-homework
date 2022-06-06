@@ -8,6 +8,7 @@ import tkinter  # //GUI模块
 import threading
 from functools import reduce
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
 # 参数
 import numpy as np
@@ -20,16 +21,8 @@ BETA:Beta值越大，蚁群越就容易选择局部较短路径，这时算法�
 '''
 (ALPHA, BETA, RHO, Q) = (1.0, 2.0, 0.5, 100.0)
 # 城市数，蚁群
-distance_x = []
-distance_y = []
-with open('data/data1.txt', 'r') as f:
-    city_num = int(f.readline())
-    city_position = []
-    for line in f.readlines():
-        line = line.split()
-        distance_x.append(int(line[1]))
-        distance_y.append(int(line[2]))
-        # city_position.append((int(line[1]), int(line[2])))
+
+# city_position.append((int(line[1]), int(line[2])))
 ant_num = 50
 # distance_x = [
 #     178, 272, 176, 171, 650, 499, 267, 703, 408, 437, 491, 74, 532,
@@ -44,12 +37,8 @@ ant_num = 50
 #     498, 265, 343, 120, 165, 50, 433, 63, 491, 275, 348, 222, 288,
 #     490, 213, 524, 244, 114, 104, 552, 70, 425, 227, 331]
 # 城市距离和信息素
-distance_graph = [[0.0 for col in range(city_num)] for raw in range(city_num)]
-pheromone_graph = [[1.0 for col in range(city_num)] for raw in range(city_num)]
+
 lock = 0
-iteration_distance = []
-iteration_ave_distance = []
-iteration = 0
 
 
 # ----------- 蚂蚁 -----------
@@ -148,27 +137,10 @@ class Ant(object):
 
 # ----------- TSP问题 -----------
 class TSP(object):
-    def __init__(self, root, width=800, height=600, n=city_num):
-        # 创建画布
-        self.root = root
-        self.width = width
-        self.height = height
-        # 城市数目初始化为city_num
+    def __init__(self, distance_x, distance_y, n):
+
         self.n = n
-        # tkinter.Canvas
-        self.canvas = tkinter.Canvas(
-            root,
-            width=self.width,
-            height=self.height,
-            bg="#EBEBEB",  # 背景白色
-            xscrollincrement=1,
-            yscrollincrement=1
-        )
-        self.canvas.pack(expand=tkinter.YES, fill=tkinter.BOTH)
-        self.title("TSP蚁群算法(n:初始化 e:开始搜索 s:停止搜索 q:退出程序)")
-        self.__r = 5
-        self.__lock = threading.RLock()  # 线程锁
-        self.__bindEvents()
+
         self.new()
         # 计算城市之间的距离
         for i in range(city_num):
@@ -178,45 +150,10 @@ class TSP(object):
                 temp_distance = pow(temp_distance, 0.5)  # 开方
                 distance_graph[i][j] = float(int(temp_distance + 0.5))  # 四舍五入
 
-    # 按键响应程序
-    def __bindEvents(self):
-        self.root.bind("q", self.quite)  # 退出程序
-        self.root.bind("n", self.new)  # 初始化
-        self.root.bind("e", self.search_path)  # 开始搜索
-        self.root.bind("s", self.stop)  # 停止搜索
-
-    # 更改标题
-    def title(self, s):
-        self.root.title(s)
-
-    # 初始化
     def new(self, evt=None):
-        # 停止线程
-        self.__lock.acquire()
-        self.__running = False
-        self.__lock.release()
-        self.clear()  # 清除信息
         self.nodes = []  # 节点坐标
         self.nodes2 = []  # 节点对象
         # 初始化城市节点
-        for i in range(len(distance_x)):
-            # 在画布上随机初始坐标
-            x = distance_x[i]
-            y = distance_y[i]
-            self.nodes.append((x, y))
-            # 生成节点椭圆，半径为self.__r
-            node = self.canvas.create_oval(x - self.__r,
-                                           y - self.__r, x + self.__r, y + self.__r,
-                                           fill="#ff0000",  # 填充红色
-                                           outline="#000000",  # 轮廓白色
-                                           tags="node",
-                                           )
-            self.nodes2.append(node)
-            # 显示坐标
-            self.canvas.create_text(x, y - 10,  # 使用create_text方法在坐标（302，77）处绘制文字
-                                    text='(' + str(x) + ',' + str(y) + ')',  # 所绘制文字的内容
-                                    fill='black'  # 所绘制文字的颜色为灰色
-                                    )
         # 顺序连接城市
         # self.line(range(city_num))
         # 初始城市之间的距离和信息素
@@ -228,52 +165,14 @@ class TSP(object):
         self.best_ant.total_distance = 1 << 31  # 初始最大距离
         self.iter = 1  # 初始化迭代次数
 
-    # 将节点按order顺序连线
-    def line(self, order):
-        # 删除原线
-        self.canvas.delete("line")
-
-        def line2(i1, i2):
-            p1, p2 = self.nodes[i1], self.nodes[i2]
-            self.canvas.create_line(p1, p2, fill="#000000", tags="line")
-            return i2
-
-        # order[-1]为初始值
-        reduce(line2, order, order[-1])
-
-    # 清除画布
-    def clear(self):
-        for item in self.canvas.find_all():
-            self.canvas.delete(item)
-
-    # 退出程序
-    def quite(self, evt):
-        self.__lock.acquire()
-        self.__running = False
-        self.__lock.release()
-        self.root.destroy()
-        print(u"\n程序已退出...")
-
-        # sys.exit()
-
     # 停止搜索
-    def stop(self, evt):
-        self.__lock.acquire()
-        self.__running = False
-        self.__lock.release()
-        plt.plot(np.arange(0, self.iter - 1), iteration_distance, 'r-')
-        plt.show()
-
     # 开始搜索
 
     def search_path(self, evt=None):
-        global lock
         global iteration
-        # 开启线程
-        self.__lock.acquire()
-        self.__running = True
-        self.__lock.release()
-        while self.__running:
+        global stop_iteration
+        global stop
+        while True:
             # 遍历每一只蚂蚁
             for ant in self.ants:
                 # 搜索一条路径
@@ -286,12 +185,6 @@ class TSP(object):
             self.__update_pheromone_gragh()
             print(u"迭代次数：", self.iter, u"最佳路径总距离：", int(self.best_ant.total_distance))
 
-            # 连线
-            self.line(self.best_ant.path)
-            # 设置标题
-            self.title("TSP蚁群算法(n:随机初始 e:开始搜索 s:停止搜索 q:退出程序) 迭代次数: %d" % self.iter)
-            # 更新画布
-            self.canvas.update()
             self.iter += 1
             iteration_distance.append(self.best_ant.total_distance)
             ave_distance = 0
@@ -300,19 +193,21 @@ class TSP(object):
             ave_distance /= ant_num
             iteration_ave_distance.append(ave_distance)
             iteration = self.iter
-            if self.iter > 100 and lock == 0:
-                lock = 1
-                self.__lock.acquire()
-                self.__running = False
-                self.__lock.release()
+            if iteration > 5:
+                if abs(iteration_distance[-1] - iteration_distance[-3]) < 0.01 and stop is False:
+                    stop_iteration = self.iter
+                    stop = True
+            if self.iter > 100:
                 sns.set(style="whitegrid", font_scale=1.5)
-                # sns.pairplot(np.array(iteration_distance).reshape(-1, 1), diag_kind="kde")
+                print(stop_iteration)
                 plt.plot(np.arange(0, self.iter - 1), iteration_distance, 'r-', label='distance_shortest')
-                plt.plot(np.arange(0, self.iter - 1), iteration_ave_distance, 'b-',label='distance_average')
+                plt.plot(np.arange(0, self.iter - 1), iteration_ave_distance, 'b-', label='distance_average')
                 plt.xlabel('iteration')
-                plt.title('TSP'+' city_num:'+str(city_num)+' ant_num:'+str(ant_num))
+                plt.title('TSP' + ' city_num:' + str(city_num) + ' ant_num:' + str(ant_num))
                 plt.legend()
                 plt.show()
+
+                break
 
     # 更新信息素
     def __update_pheromone_gragh(self):
@@ -331,7 +226,7 @@ class TSP(object):
             for i in range(1, city_num):
                 start, end = ant.path[i - 1], ant.path[i]
                 # 在路径上的每两个相邻城市间留下信息素，与路径总距离反比
-                temp_pheromone[start][end] += rank_rate * Q / ant.total_distance  # Q是正常数，计算这次迭代中的信息素浓度
+                temp_pheromone[start][end] += Q / ant.total_distance  # Q是正常数，计算这次迭代中的信息素浓度
                 temp_pheromone[end][start] = temp_pheromone[start][end]
             rank_rate -= 1 / int(rank_global_rate * ant_num)
             print("rank_rate", rank_rate)
@@ -341,10 +236,30 @@ class TSP(object):
                 pheromone_graph[i][j] = pheromone_graph[i][j] * RHO + temp_pheromone[i][j]  # 更新信息素,RHO为信息素蒸发系数
 
     # 主循环
-    def mainloop(self):
-        self.root.mainloop()
 
 
 # ----------- 程序的入口处 -----------
 if __name__ == '__main__':
-    TSP(tkinter.Tk()).mainloop()
+    compare_table = pd.DataFrame(columns=['城市数量', '最短距离', '平均距离', '迭代次数'])
+    for i in range(1, 11):
+        distance_x = []
+        distance_y = []
+        iteration_distance = []
+        iteration_ave_distance = []
+        iteration = 0
+        stop = False
+        stop_iteration = 0
+        with open('data/data{}.txt'.format(str(i)), 'r') as f:
+            city_num = int(f.readline())
+            city_position = []
+            for line in f.readlines():
+                line = line.split()
+                distance_x.append(int(line[1]))
+                distance_y.append(int(line[2]))
+        distance_graph = [[0.0 for col in range(city_num)] for raw in range(city_num)]
+        pheromone_graph = [[1.0 for col in range(city_num)] for raw in range(city_num)]
+        tsp = TSP(distance_x, distance_y, city_num)
+        tsp.search_path()
+        compare_table.loc[i - 1] = [city_num, tsp.best_ant.total_distance, iteration_ave_distance[-1], stop_iteration]
+    print(compare_table)
+    compare_table.to_csv('data/compare_table2.csv', index=False)

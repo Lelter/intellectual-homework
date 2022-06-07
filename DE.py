@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
 import math
 
@@ -21,7 +22,7 @@ def fit_fun(X, name):
         for i in range(len(X) - 1):
             y += 100 * (X[i + 1] - X[i] ** 2) ** 2 + (X[i] - 1) ** 2
     if name == 'rastrigrin':
-        y = np.sum(X ** 2 - 10 * np.cos(2 * np.pi * X + 10))
+        y = 20+ np.sum(X ** 2 - 10 * np.cos(2 * np.pi * X))
         # y = (100 * (X[1] - X[0] ** 2) ** 2 + (X[0] - 1) ** 2 + 100 * (X[2] - X[1] ** 2) ** 2 + (X[1] - 1) ** 2 + 100 * (
         #         X[3] - X[2] ** 2) ** 2 + (
         #              X[2] - 1) ** 2)  # 四维Rosenbrock函数
@@ -149,7 +150,8 @@ if __name__ == '__main__':
                 'rosenbrock7', 'rastrigrin', 'gramacy&lee']
     x = [[-100, 100], [-500, 500], [-30, 30], [-30, 30], [-30, 30], [-30, 30], [-30, 30], [-30, 30], [0, 5.12],
          [-0.5, 2.5]]
-    dim_list = [7, 7, 2, 3, 4, 5, 6, 7, 7, 1]
+    f_min = [0, 0, 0, 0, 0, 0, 0, 0, 0, -0.68351]
+    dim_list = [7, 7, 2, 3, 4, 5, 6, 7, 2, 1]
     fit_val_list_all = []
     best_pos_list = []
     fig, ax = plt.subplots(2, 5, figsize=(10, 8))
@@ -158,7 +160,7 @@ if __name__ == '__main__':
     for i in range(0, 10):
         dim = dim_list[i]  # 维度
         size = 1000  # 种群大小
-        iter_num = 40  # 迭代次数
+        iter_num = 400  # 迭代次数
         x_min = x[i][0]  # 自变量范围
         x_max = x[i][1]  # 自变量范围
         name = fun_name[i]
@@ -188,5 +190,17 @@ if __name__ == '__main__':
         # plt.plot(np.linspace(0, iter_num, iter_num), fit_var_list2)
         # plt.title(name + '_DE')
         # sns.regplot(np.linspace(0, iter_num, iter_num), fit_var_list2, order=1)
+
         # plt.plot(np.linspace(0, iter_num, iter_num), fit_var_list2, alpha=0.5, label="DE")  # 画图
+    accuracy = []
+    for i in range(len(fit_val_list_all)):
+        accuracy.append(abs(f_min[i] - fit_val_list_all[i][-1]))
+        # accuracy.append(abs(f_min[i] - i[-1]))
+    # accuracy= np.array(accuracy)
+    print(accuracy)
+    table = pd.DataFrame(columns=['函数名', '实际最小值', '计算最小值', '偏差'])
+    for i in range(len(fun_name)):
+        table.loc[i] = [fun_name[i], f_min[i], fit_val_list_all[i][-1], accuracy[i]]
+    print(table)
+    table.to_csv('DE_table.csv', index=False)
     plt.show()

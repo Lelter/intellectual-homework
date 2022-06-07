@@ -217,7 +217,7 @@ class TSP(object):
         if self.ants[0].total_distance > self.best_ant.total_distance:
             self.ants.insert(0, self.best_ant)
         rank_global_rate = 1
-        if iteration > 100:
+        if iteration > 50:
             rank_global_rate = 0.2
         allow_ants = self.ants[:int(rank_global_rate * ant_num)]
         rank_rate = 1
@@ -226,7 +226,7 @@ class TSP(object):
             for i in range(1, city_num):
                 start, end = ant.path[i - 1], ant.path[i]
                 # 在路径上的每两个相邻城市间留下信息素，与路径总距离反比
-                temp_pheromone[start][end] += Q / ant.total_distance  # Q是正常数，计算这次迭代中的信息素浓度
+                temp_pheromone[start][end] += (rank_rate * Q) / ant.total_distance  # Q是正常数，计算这次迭代中的信息素浓度
                 temp_pheromone[end][start] = temp_pheromone[start][end]
             rank_rate -= 1 / int(rank_global_rate * ant_num)
             print("rank_rate", rank_rate)
